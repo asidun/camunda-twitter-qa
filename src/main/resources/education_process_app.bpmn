@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ierlzy" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.14.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.19.0">
+  <bpmn:process id="TwitterQAProcess" name="Twitter QA" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="Tweet_written" name="Tweet written">
+      <bpmn:outgoing>Flow_0uzmgos</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0uzmgos" sourceRef="Tweet_written" targetRef="Review_tweet" />
+    <bpmn:sequenceFlow id="Flow_03a11lo" sourceRef="Review_tweet" targetRef="Tweet_approved" />
+    <bpmn:endEvent id="Tweet_published" name="Tweet published">
+      <bpmn:incoming>Flow_0z2nm2k</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0z2nm2k" sourceRef="Publish_tweet" targetRef="Tweet_published" />
+    <bpmn:endEvent id="Tweet_rejected" name="Tweet rejected">
+      <bpmn:incoming>Flow_1xz3dk6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1xz3dk6" sourceRef="Notify_employee" targetRef="Tweet_rejected" />
+    <bpmn:exclusiveGateway id="Tweet_approved" name="Tweet approved?" default="no">
+      <bpmn:incoming>Flow_03a11lo</bpmn:incoming>
+      <bpmn:outgoing>no</bpmn:outgoing>
+      <bpmn:outgoing>yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="no" name="no" sourceRef="Tweet_approved" targetRef="Notify_employee" />
+    <bpmn:sequenceFlow id="yes" name="yes" sourceRef="Tweet_approved" targetRef="Publish_tweet">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:scriptTask id="Notify_employee" name="Notify employee" scriptFormat="javascript">
+      <bpmn:incoming>no</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xz3dk6</bpmn:outgoing>
+      <bpmn:script>print('Tweet rejected');</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:serviceTask id="Publish_tweet" name="Publish tweet" camunda:class="com.camunda.training.delegate.CreateTweetDelegate">
+      <bpmn:incoming>yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_0z2nm2k</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:manualTask id="Review_tweet" name="Review tweet">
+      <bpmn:incoming>Flow_0uzmgos</bpmn:incoming>
+      <bpmn:outgoing>Flow_03a11lo</bpmn:outgoing>
+    </bpmn:manualTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TwitterQAProcess">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="Tweet_written">
+        <dc:Bounds x="179" y="109" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="167" y="152" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1e532oc_di" bpmnElement="Tweet_published">
+        <dc:Bounds x="692" y="109" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="670" y="152" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0rw1r2v_di" bpmnElement="Tweet_rejected">
+        <dc:Bounds x="692" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="674" y="265" width="72" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_00blfyr_di" bpmnElement="Tweet_approved" isMarkerVisible="true">
+        <dc:Bounds x="425" y="102" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="407" y="78" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1hd8dov_di" bpmnElement="Notify_employee">
+        <dc:Bounds x="530" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1immul4_di" bpmnElement="Publish_tweet">
+        <dc:Bounds x="530" y="87" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nyogwj_di" bpmnElement="Review_tweet">
+        <dc:Bounds x="270" y="87" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0uzmgos_di" bpmnElement="Flow_0uzmgos">
+        <di:waypoint x="215" y="127" />
+        <di:waypoint x="270" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03a11lo_di" bpmnElement="Flow_03a11lo">
+        <di:waypoint x="370" y="127" />
+        <di:waypoint x="425" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0z2nm2k_di" bpmnElement="Flow_0z2nm2k">
+        <di:waypoint x="630" y="127" />
+        <di:waypoint x="692" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xz3dk6_di" bpmnElement="Flow_1xz3dk6">
+        <di:waypoint x="630" y="240" />
+        <di:waypoint x="692" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tnss9y_di" bpmnElement="no">
+        <di:waypoint x="450" y="152" />
+        <di:waypoint x="450" y="240" />
+        <di:waypoint x="530" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="459" y="193" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0oucs3e_di" bpmnElement="yes">
+        <di:waypoint x="475" y="127" />
+        <di:waypoint x="530" y="127" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="494" y="109" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
